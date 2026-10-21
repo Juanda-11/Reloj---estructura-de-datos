@@ -23,16 +23,16 @@ Reloj analógico + digital para la consola, hecho solo con Python y construido s
 ```
 python3 clock.py
 ```
-Requiere Python 3.6+ y una terminal con colores ANSI (macOS/Linux, Windows Terminal). Conviene una ventana de al menos 80 columnas × 30 filas.
+Requiere Python 3.6+ y una terminal con colores ANSI (macOS/Linux, Windows Terminal). Tamaño de ventana recomendado: al menos 80 columnas × 30 filas.
 
 ## Cómo funciona sin `import`
 Python no puede leer la hora del sistema ni pausar el programa sin importar un módulo, así que:
 1. **Hora:** se escribe una vez (opción 2) y el reloj avanza contando *ticks* de 0,1 s.
-2. **Espera:** cada tick espera con un bucle ocupado. Su duración depende del computador, por eso la opción 7 calibra la velocidad con un cronómetro real (por ejemplo, el del celular) y guarda el resultado en `clock_calibration.txt`.
+2. **Espera:** cada tick espera con un bucle ocupado. Su duración depende del computador, por eso la opción 7 calibra la velocidad con un cronómetro real (por ejemplo, el de un celular) y guarda el resultado en `clock_calibration.txt`.
 3. **Teclado:** con `input()` solo se lee cuando se pulsa Enter. El reloj corre en vivo y `Ctrl+C` (una excepción de Python, sin import) vuelve al menú.
 4. **Matemáticas:** seno y coseno se calculan con la serie de Taylor, sin `math`.
 
-Limitación: el tiempo solo avanza mientras el reloj o el cronómetro están abiertos (en los menús se detiene). Conviene ajustar la hora justo antes de abrir el reloj, y la precisión depende de la calibración.
+Limitaciones: el tiempo solo avanza mientras el reloj o el cronómetro están abiertos (en los menús se detiene), por lo que la hora se ajusta justo antes de abrir el reloj; y la precisión depende de la calibración.
 
 ## Menú
 | Opción | Acción |
