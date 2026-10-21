@@ -1,32 +1,46 @@
-# ASCII Analog & Digital Clock
+# Reloj con Listas Circulares Dobles
 
-An interactive terminal clock written in pure Python (standard library only, no GUI or web technologies).
+Reloj analógico + digital para la terminal, hecho solo con Python y construido sobre **listas circulares dobles** (Estructura de Datos). No usa HTML, CSS ni librerías externas; el código está en inglés.
 
-## Features
-- **Analog clock**: circular dial with numbers 1-12 and hour (`H`), minute (`M`) and second (`.`) hands.
-- **Digital clock**: `HH:MM:SS` plus the current date.
-- **Alarm mode**: store several `HH:MM` alarms; when one fires, a flashing banner is shown and the terminal bell (`\a`) rings every second until silenced (`X`) or 30 seconds pass.
-- **Stopwatch mode**: start/pause and reset, with centisecond precision.
-- Flicker-free refresh: the cursor is moved home with ANSI escapes and each line is overwritten in place, on the alternate screen buffer.
+## Dónde se usa la lista circular doble
+| Parte | Uso de la lista |
+|-------|-----------------|
+| **Carátula** | Anillo de 60 nodos (`Tick`). Cada manecilla (hora, minuto, segundo) es un cursor que recorre el anillo con `next`/`prev`, siempre por el camino más corto (pasar de 59 a 0 es un solo `next`). |
+| **Zonas horarias** | Anillo de zonas; `,` va al nodo `prev` y `.` al nodo `next`. |
+| **Alarmas** | Anillo ordenado por hora (`insert_sorted`); se elimina el nodo seleccionado en O(1) con `delete_node`. |
+| **Vueltas del cronómetro** | Anillo de vueltas que se puede recorrer en ambos sentidos. |
 
-## Run
+`circular_list.py` contiene `Node` y `CircularDoublyLinkedList` con lo visto en clase (`insert_at_beginning`, `insert_at_end`, `delete`, `print_list`) más `insert_sorted`, `delete_node`, `find`, recorrido hacia adelante (`iter`) y hacia atrás (`reversed`).
+
+## Funcionalidades
+- Reloj analógico (números 1-12, manecillas `#` hora, `*` minuto, `.` segundo) y reloj digital con fecha, en formato 24 h o 12 h (`T`).
+- **Funcionalidad extra: reloj mundial** (zonas horarias con desfase fijo, sin horario de verano).
+- Alarmas múltiples (crear, eliminar, activar/desactivar); al sonar parpadea un aviso y suena la campana de la terminal.
+- Cronómetro con vueltas.
+
+## Ejecutar
 ```
 python3 clock.py
 ```
-Requires Python 3.6+ and an interactive terminal with ANSI support (Linux/macOS terminals, Windows Terminal).
+Requiere Python 3.6+ y una terminal interactiva con ANSI (Linux/macOS, Windows Terminal).
 
-## Controls
-| Key | Action |
-|-----|--------|
-| `C` / `A` / `S` | Clock / Alarms / Stopwatch mode |
-| `N` / `D` (alarm mode) | New alarm / delete alarm (asks for `HH:MM`) |
-| `X` | Silence a ringing alarm |
-| `SPACE` / `R` (stopwatch mode) | Start-pause / reset |
-| `Q` or `Ctrl+C` | Quit |
+Pruebas: `python3 -m unittest -v`
 
-## Architecture
-- **Canvas**: a `list` of `list`s of single characters (`new_canvas`). `polar_to_cell` maps a clock angle and radius to a `(row, col)` tuple, stretching columns by 2 to compensate for tall terminal cells.
-- **Hands**: the `HANDS` dictionary maps each hand to a `(length ratio, character)` tuple; `hand_angles` returns a dictionary of angles; `draw_hand` samples points along the ray.
-- **State**: the `State` class holds the mode, an `alarms` dictionary (`"HH:MM"` -> label), ringing status and stopwatch counters.
-- **Rendering**: `build_frame` composes the screen as a list of lines; `draw` writes it in a single pass.
-- **Input**: `Terminal` is a context manager that enables single-key (cbreak) input with `select` for non-blocking polling, and restores the terminal on exit.
+## Controles
+| Tecla | Acción |
+|-------|--------|
+| `C` / `A` / `S` | Reloj / Alarmas / Cronómetro |
+| `,` / `.` | Elemento anterior / siguiente de la lista del modo actual |
+| `T` (reloj) | 12 h / 24 h |
+| `N` / `D` / `E` (alarmas) | Nueva / eliminar la seleccionada / activar-desactivar |
+| `X` | Silenciar alarma |
+| `ESPACIO` / `L` / `R` (cronómetro) | Iniciar-pausar / vuelta / reiniciar |
+| `Q` o `Ctrl+C` | Salir |
+
+## Sobre los imports
+Python no puede leer la hora del sistema ni el teclado sin importar módulos de su biblioteca estándar (`time`, `select`, `termios`/`tty`), así que son los únicos imports. Seno y coseno se calculan a mano (serie de Taylor), sin `math`.
+
+## Estructura
+- `circular_list.py`: lista circular doble.
+- `clock.py`: carátula, estado, alarmas, cronómetro e interfaz de terminal.
+- `test_clock.py`: pruebas unitarias.
